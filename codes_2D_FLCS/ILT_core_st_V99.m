@@ -42,14 +42,18 @@ tic
     K2 = U2 * S2 * V2';
     
      % compressed data
-    mtilde = U1' * inData' * U2;
+    
+     mtilde = U1' * inData' * U2;
     
     % projected data in range space
     mtilde2 = U1 * mtilde * U2';
     
-%      NoiseStd = mean(std(((mtilde2 - inData'))))
-       NoiseStd = (3/8)*mean(std((sqrt(mtilde2) - sqrt(inData'))))
+%     NoiseStd = 1;
+     NoiseStd = mean(std(((mtilde2 - inData'))))
+%        NoiseStd = mean(std((sqrt(mtilde2) - sqrt(inData'))))
 %        NoiseStd = (3/8)*mean(std(((mtilde2 - inData')./sqrt(mtilde2))))
+%         NoiseStd = mean(std(( (mtilde2 - inData')./sqrt(inData'))))
+
         
         nn = (((mtilde2 - inData'))./sqrt(mtilde2));
          nn(isinf(nn) | isnan(nn)) = 0;
@@ -64,7 +68,7 @@ tic
         case {0,1,3,4}	
 
             [F_ILT, CompressedData, Chi, Alpha,oppar] = ...
-                C_solver(inData,  U1, U2, V1, V2, ...
+                C_solver(inData,  U1, U2, V1, V2,...
                     S1, S2,AlphaStart, NoiseStd, Alpha_Auto, ConditionNumber,wvar,theMaxPoint);
 
         otherwise 

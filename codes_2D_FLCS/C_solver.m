@@ -51,12 +51,12 @@ st_alpha = alpha;
 init_alpha = 1E6;
 pp=1;
 alpha = init_alpha;
-dec_rate = 0.2; %0.9 for smooth
+dec_rate = 3; % 1.1 for smooth
 
 
-stopper = 1/sqrt(NoiseStd)
+stopper = 1./sqrt(NoiseStd)
 oppar.stopper= stopper;
-bias = 1000;
+bias = 1E2; %%%%%%%%%%%%%%%%%%%%%%%%%%%
 fstop = 0; 
 
 while fstop ==0
@@ -66,7 +66,7 @@ while fstop ==0
 	    data,  K, alpha,Identity) ;
 
     fronorm =  norm(C_hat, 'fro');
-	Chi = alpha *fronorm/stopper;
+	Chi = alpha *fronorm./stopper;
     oppar.fronorm(pp) = fronorm;
     oppar.chi(pp) = Chi;
     oppar.fval(pp) = -fval;
@@ -74,7 +74,7 @@ while fstop ==0
         switch flag
             case 0  % fixed
                 
-                alpha = alpha * dec_rate;
+                alpha = alpha / dec_rate;
                 oppar.cv_dump(:,pp) = C_hat;
                 oppar.apar(pp) = alpha;
                 
@@ -87,13 +87,13 @@ while fstop ==0
                 
                 
                 if  alpha<st_alpha
-                    fstop = 1;
+                    fstop = 1;  
                     'min alpha reached'
                 end
             case 1  % BRD
 %                 
-                    alpha_opt =  sqrt(n).*(NoiseStd)./(norm(C_hat,'fro'));
-                  		
+%                     alpha_opt =  sqrt(n).*(NoiseStd)./(norm(C_hat,'fro'));
+                      alpha_opt =  (1.*(NoiseStd)./(norm(C_hat,'fro')));
                     oppar.cv_dump(:,pp) = C_hat;
                     oppar.apar(pp) = alpha_opt;
                     pp = pp+1;
@@ -107,13 +107,18 @@ while fstop ==0
                     fstop =1; 
                     'chi_stop'
                 end
+                
+                if (alpha*fronorm - sqrt(n)*NoiseStd)/(sqrt(n)*NoiseStd)<0.1
+%                     fstop = 1;
+                    'old_chi_stop'
+                end
                 alpha = alpha_opt;
                
               
                 
             case 4
                 
-                alpha = alpha * dec_rate;
+                alpha = alpha / dec_rate;
                 oppar.cv_dump(:,pp) = C_hat; 
                 pp = pp+1;
                 
